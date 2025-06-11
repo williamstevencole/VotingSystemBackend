@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id('id_usuario');
             $table->string('correo')->unique();
-            $table->string('contrasena'); // guarda aquí el hash
+            $table->string('contrasena'); 
             $table->foreignId('id_persona')
                   ->constrained('personas','id_persona')
                   ->onDelete('cascade');
