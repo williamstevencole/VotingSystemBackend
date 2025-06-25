@@ -13,18 +13,26 @@ use App\Http\Controllers\Api\CandidatoAlcaldeController;
 use App\Http\Controllers\Api\VotoPresidencialController;
 use App\Http\Controllers\Api\VotoDiputadoController;
 use App\Http\Controllers\Api\VotoAlcaldeController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UsuarioController;
 
+use App\Models\Usuario;
 
-# Defining API routes for the voting system application
-Route::middleware('api')->group(function () {
-    Route::apiResource('partidos', PartidoController::class);
-    Route::apiResource('departamentos', DepartamentoController::class);
-    Route::apiResource('municipios', MunicipioController::class);
-    Route::apiResource('personas', PersonaController::class);
-    Route::apiResource('candidatos/presidente', CandidatoPresidenteController::class);
-    Route::apiResource('candidatos/diputado', CandidatoDiputadoController::class);
-    Route::apiResource('candidatos/alcalde', CandidatoAlcaldeController::class);
-    Route::apiResource('votos/presidencial', VotoPresidencialController::class);
-    Route::apiResource('votos/diputado', VotoDiputadoController::class);
-    Route::apiResource('votos/alcalde', VotoAlcaldeController::class);
+# Authentication routes
+Route::post('/login', [AuthController::class, 'login']);
+
+# Usuario routes (todas las rutas)
+Route::get('/usuarios', [UsuarioController::class, 'index']);
+Route::post('/usuarios', [UsuarioController::class, 'store']);
+Route::get('/usuarios/{id_usuario}', [UsuarioController::class, 'show']);
+Route::put('/usuarios/{id_usuario}', [UsuarioController::class, 'update']);
+Route::delete('/usuarios/{id_usuario}', [UsuarioController::class, 'destroy']);
+
+# Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+
+    #aca irian las rutas que requieren autenticacion 
+
 });

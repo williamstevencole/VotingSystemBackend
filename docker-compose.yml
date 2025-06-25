@@ -18,6 +18,16 @@ services:
             DB_PASSWORD: postgres
         depends_on:
             - db
+        command: >
+            sh -c "
+              echo 'Waiting for database...' &&
+              while ! nc -z db 5432; do
+                sleep 1
+              done &&
+              echo 'Database is ready!' &&
+              php artisan migrate:fresh --seed --force &&
+              php-fpm
+            "
         networks:
             - voting-network
 

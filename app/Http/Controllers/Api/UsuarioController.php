@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
@@ -12,7 +13,12 @@ class UsuarioController extends Controller
      */
     public function index()
     {
-        //
+        $usuarios = Usuario::all();
+        if($usuarios->count() > 0){
+            return response()->json($usuarios);
+        }else{
+            return response()->json(['message' => 'No se encontraron usuarios'], 404);
+        }
     }
 
     /**
@@ -20,7 +26,12 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $usuario = Usuario::create($request->all());
+        if($usuario){
+            return response()->json($usuario, 201);
+        }else{
+            return response()->json(['message' => 'Error al crear el usuario'], 400);
+        }
     }
 
     /**
@@ -28,7 +39,12 @@ class UsuarioController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $usuario = Usuario::find($id_usuario);
+        if($usuario){
+            return response()->json($usuario);
+        }else{
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
     }
 
     /**
@@ -36,7 +52,13 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $usuario = Usuario::find($id);
+        if($usuario){
+            $usuario->update($request->all());
+            return response()->json($usuario);
+        }else{
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
     }
 
     /**
@@ -44,6 +66,12 @@ class UsuarioController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $usuario = Usuario::find($id);
+        if($usuario){
+            $usuario->delete();
+            return response()->json(null, 204);
+        }else{
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
     }
 }

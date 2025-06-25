@@ -1,0 +1,45 @@
+{
+    "name": "voting-system-backend",
+    "description": "Sistema de votación Laravel API",
+    "repository": "https://github.com/tu-usuario/voting-system-backend",
+    "logo": "https://laravel.com/img/logomark.min.svg",
+    "keywords": ["laravel", "php", "api", "voting"],
+    "addons": [
+        {
+            "plan": "heroku-postgresql:mini"
+        }
+    ],
+    "env": {
+        "APP_ENV": {
+            "description": "Application environment",
+            "value": "production"
+        },
+        "APP_DEBUG": {
+            "description": "Application debug mode",
+            "value": "false"
+        },
+        "APP_KEY": {
+            "description": "Application key",
+            "generator": "base64:32"
+        },
+        "DB_CONNECTION": {
+            "description": "Database connection",
+            "value": "pgsql"
+        },
+        "CACHE_DRIVER": {
+            "description": "Cache driver",
+            "value": "file"
+        },
+        "SESSION_DRIVER": {
+            "description": "Session driver",
+            "value": "file"
+        },
+        "QUEUE_DRIVER": {
+            "description": "Queue driver",
+            "value": "sync"
+        }
+    },
+    "scripts": {
+        "postdeploy": "php artisan migrate:fresh --seed --force"
+    }
+}
