@@ -37,7 +37,7 @@ class UsuarioController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id_usuario)
     {
         $usuario = Usuario::find($id_usuario);
         if($usuario){
@@ -50,9 +50,9 @@ class UsuarioController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_usuario)
     {
-        $usuario = Usuario::find($id);
+        $usuario = Usuario::find($id_usuario);
         if($usuario){
             $usuario->update($request->all());
             return response()->json($usuario);
@@ -64,9 +64,9 @@ class UsuarioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id_usuario)
     {
-        $usuario = Usuario::find($id);
+        $usuario = Usuario::find($id_usuario);
         if($usuario){
             $usuario->delete();
             return response()->json(null, 204);
