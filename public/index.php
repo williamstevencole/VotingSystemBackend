@@ -2,20 +2,23 @@
 
 define('LARAVEL_START', microtime(true));
 
-// Autoload de Composer
+// 1. Carga el autoloader de Composer
 require __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap de la aplicación
+// 2. Bootstrap de la aplicación
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
 /** @var \Illuminate\Contracts\Http\Kernel $kernel */
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-// Captura la petición, la procesa y envía la respuesta
-$request  = Illuminate\Http\Request::capture();
+// 3. Captura la petición
+$request = Illuminate\Http\Request::capture();
+
+// 4. Delega al kernel para obtener la respuesta
 $response = $kernel->handle($request);
 
+// 5. Envía cabeceras y contenido
 $response->send();
 
-// Termina el kernel (listeners, terminable middleware, etc)
+// 6. Termina el kernel (middleware terminable, listeners, etc)
 $kernel->terminate($request, $response);
