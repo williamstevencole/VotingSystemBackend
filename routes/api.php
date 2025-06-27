@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\VotoAlcaldeController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\MovimientoController;
+use App\Http\Controllers\Api\EstadisticasController;
 
 use App\Models\Usuario;
 
@@ -93,7 +94,47 @@ Route::put('/usuarios/{id_usuario}', [UsuarioController::class, 'update']);
 Route::delete('/usuarios/{id_usuario}', [UsuarioController::class, 'destroy']);
 
 #VOTO ROUTES
+Route::get('/votos-presidenciales', [VotoPresidencialController::class, 'index']);
+Route::post('/votos-presidenciales', [VotoPresidencialController::class, 'store']);
+Route::get('/votos-presidenciales/{id}', [VotoPresidencialController::class, 'show']);
+Route::put('/votos-presidenciales/{id}', [VotoPresidencialController::class, 'update']);
+Route::delete('/votos-presidenciales/{id}', [VotoPresidencialController::class, 'destroy']);
 
+Route::get('/votos-diputados', [VotoDiputadoController::class, 'index']);
+Route::post('/votos-diputados', [VotoDiputadoController::class, 'store']);
+Route::get('/votos-diputados/{id}', [VotoDiputadoController::class, 'show']);
+Route::put('/votos-diputados/{id}', [VotoDiputadoController::class, 'update']);
+Route::delete('/votos-diputados/{id}', [VotoDiputadoController::class, 'destroy']);
+
+Route::get('/votos-alcaldes', [VotoAlcaldeController::class, 'index']);
+Route::post('/votos-alcaldes', [VotoAlcaldeController::class, 'store']);
+Route::get('/votos-alcaldes/{id}', [VotoAlcaldeController::class, 'show']);
+Route::put('/votos-alcaldes/{id}', [VotoAlcaldeController::class, 'update']);
+Route::delete('/votos-alcaldes/{id}', [VotoAlcaldeController::class, 'destroy']);
+
+# Estadísticas routes
+Route::prefix('estadisticas')->group(function () {
+    //generales -> total de votos, total de personas, total de usuarios, total de partidos, total de movimientos, total de candidatos, total de votos por partido, total de votos por movimiento, total de votos por candidato
+    Route::get('/generales', [EstadisticasController::class, 'generales']);
+    //participacion de presidenciales por departamento, participacion = votos presidenciales / votos presidenciales totales
+    Route::get('/presidenciales', [EstadisticasController::class, 'presidenciales']);
+    //participacion de presidenciales por departamento, participacion = votos presidenciales / votos presidenciales totales
+    Route::get('/diputados', [EstadisticasController::class, 'diputados']);
+    //participacion de diputados por departamento, participacion = votos diputados / votos diputados totales
+    Route::get('/alcaldes', [EstadisticasController::class, 'alcaldes']);
+    //comparativa de partidos, comparativa = votos partido / votos partido total
+    Route::get('/comparativa-partidos', [EstadisticasController::class, 'comparativaPartidos']);
+    //ranking de presidentes por departamento, ranking = votos presidenciales / votos presidenciales totales
+    Route::get('/ranking-presidentes', [EstadisticasController::class, 'rankingPresidentes']);
+    //ranking de alcaldes por municipio, ranking = votos alcaldes / votos alcaldes totales
+    Route::get('/ranking-alcaldes', [EstadisticasController::class, 'rankingAlcaldes']);
+    //ranking de diputados por departamento, ranking = votos diputados / votos diputados totales
+    Route::get('/ranking-diputados', [EstadisticasController::class, 'rankingDiputados']);
+    //participacion de alcaldes por departamento, participacion = votos alcaldes / votos alcaldes totales
+    Route::get('/participacion-departamentos', [EstadisticasController::class, 'participacionDepartamentos']);
+    //participacion de alcaldes por municipio, participacion = votos alcaldes / votos alcaldes totales
+    Route::get('/participacion-municipios', [EstadisticasController::class, 'participacionMunicipios']);
+});
 
 # Protected routes
 Route::middleware('auth:sanctum')->group(function () {

@@ -14,7 +14,8 @@ class VotoPresidencialController extends Controller
      */
     public function index()
     {
-        //
+        $votos = VotoPresidencial::all();
+        return response()->json($votos);
     }
 
     /**
@@ -22,7 +23,8 @@ class VotoPresidencialController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $voto = VotoPresidencial::create($request->all());
+        return response()->json($voto, 201);
     }
 
     /**
@@ -30,7 +32,12 @@ class VotoPresidencialController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $voto = VotoPresidencial::find($id);
+        if($voto){
+            return response()->json($voto);
+        }else{
+            return response()->json(['message' => 'Voto no encontrado'], 404);
+        }
     }
 
     /**
@@ -38,7 +45,13 @@ class VotoPresidencialController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $voto = VotoPresidencial::find($id);
+        if($voto){
+            $voto->update($request->all());
+            return response()->json($voto);
+        }else{
+            return response()->json(['message' => 'Voto no encontrado'], 404);
+        }
     }
 
     /**
@@ -46,6 +59,12 @@ class VotoPresidencialController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $voto = VotoPresidencial::find($id);
+        if($voto){
+            $voto->delete();
+            return response()->json(['message' => 'Voto eliminado'], 200);
+        }else{
+            return response()->json(['message' => 'Voto no encontrado'], 404);
+        }
     }
 }
