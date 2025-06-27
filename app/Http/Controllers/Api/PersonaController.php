@@ -14,7 +14,8 @@ class PersonaController extends Controller
      */
     public function index()
     {
-        //
+        $personas = Persona::all();
+        return response()->json($personas);
     }
 
     /**
@@ -22,30 +23,36 @@ class PersonaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $persona = Persona::create($request->all());
+        return response()->json($persona, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id_persona)
     {
-        //
+        $persona = Persona::find($id_persona);
+        return response()->json($persona);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_persona)
     {
-        //
+        $persona = Persona::find($id_persona);
+        $persona->update($request->all());
+        return response()->json($persona);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id_persona)
     {
-        //
+        $persona = Persona::find($id_persona);
+        $persona->delete();
+        return response()->json(null, 204);
     }
 }

@@ -14,6 +14,11 @@ class Partido extends Model
     public $timestamps = false;
     protected $fillable = ['nombre'];
 
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'id_partido', 'id_partido');
+    }
+
     public function candidatosPresidente()
     {
         return $this->hasMany(CandidatoPresidente::class, 'id_partido', 'id_partido');

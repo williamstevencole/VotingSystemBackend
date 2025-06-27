@@ -15,88 +15,44 @@ class AuthController extends Controller
     /**
      * Login user and return token
      */
+
+
+     //SI la request incluye correo y contraseña, se debe verificar si el usuario existe y si la contraseña es correcta, si es correcto, se debe de crear el token con los datos de ese usuario.
+     //Si la request solo incluye numero de identidad, se debe verificar si la persona existe, si no existe, se debe de crear la persona y se manda el token con los datos de esa persona.
     public function login(Request $request)
     {
-        // Validate the request
         $validator = Validator::make($request->all(), [
-            'email' => 'required_without:no_identidad|email',
-            'no_identidad' => 'required_without:email|string',
-            'password' => 'required|string|min:6',
-        ], [
-            'email.required_without' => 'El email es requerido cuando no se proporciona número de identidad.',
-            'no_identidad.required_without' => 'El número de identidad es requerido cuando no se proporciona email.',
-            'password.required' => 'La contraseña es requerida.',
-            'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'correo' => 'required_without:no_identidad',
+            'no_identidad' => 'required_without:correo',
+            'contrasena' => 'required_with:correo',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
-        try {
-            $usuario = null;
-
-            // Try to find user by email or identity number
-            if ($request->has('email')) {
-                $usuario = Usuario::where('correo', $request->email)->first();
-            } else {
-                // Find persona by identity number first, then get associated usuario
-                $persona = Persona::where('no_identidad', $request->no_identidad)->first();
-                if ($persona) {
-                    $usuario = Usuario::where('id_persona', $persona->id_persona)->first();
-                }
+        if ($request->has('correo') && $request->has('contrasena')) {
+            $usuario = Usuario::where('correo', $request->correo)->first();
+            if (!$usuario) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
-
-            // Check if user exists and password is correct
-            if (!$usuario || !Hash::check($request->password, $usuario->contrasena)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Credenciales inválidas'
-                ], 401);
+            if (!Hash::check($request->contrasena, $usuario->contrasena)) {
+                return response()->json(['error' => 'Contraseña incorrecta'], 401);
             }
-
-            // Create token
-            $token = $usuario->createToken('auth-token')->plainTextToken;
-
-            // Load persona relationship
-            $usuario->load('persona.municipio.departamento');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Login exitoso',
-                'data' => [
-                    'token' => $token,
-                    'user' => [
-                        'id_usuario' => $usuario->id_usuario,
-                        'correo' => $usuario->correo,
-                        'persona' => [
-                            'id_persona' => $usuario->persona->id_persona,
-                            'nombre' => $usuario->persona->nombre,
-                            'no_identidad' => $usuario->persona->no_identidad,
-                            'municipio' => [
-                                'id_municipio' => $usuario->persona->municipio->id_municipio,
-                                'nombre' => $usuario->persona->municipio->nombre,
-                                'departamento' => [
-                                    'id_departamento' => $usuario->persona->municipio->departamento->id_departamento,
-                                    'nombre' => $usuario->persona->municipio->departamento->nombre,
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error interno del servidor',
-                'error' => $e->getMessage()
-            ], 500);
+            $token = $usuario->createToken('auth_token')->plainTextToken;
+            return response()->json(['token' => $token, 'id_usuario' => $usuario->id_usuario, 'correo' => $usuario->correo, 'id_persona' => $usuario->persona->id_persona, 'nombre' => $usuario->persona->nombre, 'no_identidad' => $usuario->persona->no_identidad], 200);
         }
+
+        if ($request->has('no_identidad')) {
+            $persona = Persona::where('no_identidad', $request->no_identidad)->first();
+            if (!$persona) {
+                return response()->json(['error' => 'Persona no encontrada'], 404);
+            }
+            $token = $persona->createToken('auth_token')->plainTextToken;
+            return response()->json(['token' => $token, 'id_persona' => $persona->id_persona, 'nombre' => $persona->nombre, 'no_identidad' => $persona->no_identidad], 200);
+        }
+
+        return response()->json(['error' => 'No se proporcionó correo o contraseña'], 400);
     }
 
     /**

@@ -12,11 +12,16 @@ class CandidatoAlcalde extends Model
     protected $table = 'candidato_alcaldes';
     protected $primaryKey = 'id_candidato';
     public $timestamps = false;
-    protected $fillable = ['id_partido', 'id_municipio', 'nombre', 'foto'];
+    protected $fillable = ['id_partido', 'id_movimiento', 'id_municipio', 'nombre', 'foto_url'];
 
     public function partido()
     {
         return $this->belongsTo(Partido::class, 'id_partido', 'id_partido');
+    }
+
+    public function movimiento()
+    {
+        return $this->belongsTo(Movimiento::class, 'id_movimiento', 'id_movimiento');
     }
 
     public function municipio()

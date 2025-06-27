@@ -12,11 +12,16 @@ class CandidatoPresidente extends Model
     protected $table = 'candidato_presidentes';
     protected $primaryKey = 'id_candidato';
     public $timestamps = false;
-    protected $fillable = ['id_partido', 'nombre', 'foto'];
+    protected $fillable = ['id_partido', 'id_movimiento', 'nombre', 'foto_url'];
 
     public function partido()
     {
         return $this->belongsTo(Partido::class, 'id_partido', 'id_partido');
+    }
+
+    public function movimiento()
+    {
+        return $this->belongsTo(Movimiento::class, 'id_movimiento', 'id_movimiento');
     }
 
     public function votos()
