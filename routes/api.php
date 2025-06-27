@@ -92,6 +92,9 @@ Route::get('/usuarios/{id_usuario}', [UsuarioController::class, 'show']);
 Route::put('/usuarios/{id_usuario}', [UsuarioController::class, 'update']);
 Route::delete('/usuarios/{id_usuario}', [UsuarioController::class, 'destroy']);
 
+#VOTO ROUTES
+
+
 # Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
