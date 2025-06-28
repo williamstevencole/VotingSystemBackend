@@ -13,6 +13,9 @@ class VotoDiputado extends Model
     protected $primaryKey = 'id_voto';
     public $timestamps = false;
     protected $fillable = ['id_persona', 'id_candidato', 'id_departamento', 'tiempo'];
+    protected $casts = [
+        'id_candidato' => 'integer',
+    ];
 
     public function persona()
     {

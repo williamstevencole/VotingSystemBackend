@@ -200,7 +200,6 @@ foreach ($personas as $personaId => $municipioId) {
         if (crearVotoPresidencial($personaId, $candidatoId, $tiempo)) {
             $totalVotosPresidente++;
         }
-        usleep(100000); // Pausa de 0.1 segundos
     } else {
         echo "⏭️ Persona $personaId no votó presidencial\n";
     }
@@ -227,7 +226,6 @@ foreach ($personas as $personaId => $municipioId) {
             if (crearVotoDiputado($personaId, $candidatoId, $tiempo)) {
                 $totalVotosDiputados++;
             }
-            usleep(100000);
         }
     } else {
         echo "⏭️ Persona $personaId no votó diputados\n";
@@ -247,7 +245,6 @@ foreach ($personas as $personaId => $municipioId) {
         if (crearVotoAlcalde($personaId, $candidatoId, $municipioId, $tiempo)) {
             $totalVotosAlcaldes++;
         }
-        usleep(100000);
     } else {
         echo "⏭️ Persona $personaId no votó alcalde\n";
     }

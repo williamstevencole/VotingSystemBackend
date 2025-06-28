@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Persona;
+use App\Models\VotoPresidencial;
+use App\Models\VotoDiputado;
+use App\Models\VotoAlcalde;
 
 class PersonaController extends Controller
 {
@@ -66,5 +69,31 @@ class PersonaController extends Controller
         $persona = Persona::find($id_persona);
         $persona->delete();
         return response()->json(null, 204);
+    }
+
+    /*
+    * VErificar si la persona ya ha votado (aunque sea nulo)
+    */
+    public function verificarVoto(string $id_persona)
+    {
+        $persona = Persona::find($id_persona);
+        if (!$persona) {
+            return response()->json(['error' => 'Persona no encontrada'], 404);
+        }
+
+        $votoPresidencial = VotoPresidencial::where('id_persona', $id_persona)->exists();
+        $votoDiputado = VotoDiputado::where('id_persona', $id_persona)->exists();
+        $votoAlcalde = VotoAlcalde::where('id_persona', $id_persona)->exists();
+
+        $yaVoto = $votoPresidencial || $votoDiputado || $votoAlcalde;
+
+        return response()->json([
+            'voto' => $yaVoto,
+            'detalles' => [
+                'presidencial' => $votoPresidencial,
+                'diputado' => $votoDiputado,
+                'alcalde' => $votoAlcalde
+            ]
+        ]);
     }
 }

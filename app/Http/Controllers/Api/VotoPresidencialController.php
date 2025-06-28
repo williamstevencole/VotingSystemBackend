@@ -23,6 +23,13 @@ class VotoPresidencialController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'id_persona' => 'required|exists:personas,id_persona',
+            'id_candidato' => 'nullable|exists:candidato_presidentes,id_candidato',
+            'id_departamento' => 'required|exists:departamentos,id_departamento',
+            'tiempo' => 'required|date',
+        ]);
+
         $voto = VotoPresidencial::create($request->all());
         return response()->json($voto, 201);
     }
