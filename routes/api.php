@@ -64,6 +64,7 @@ Route::put('/candidatos-alcalde/{id}', [CandidatoAlcaldeController::class, 'upda
 Route::delete('/candidatos-alcalde/{id}', [CandidatoAlcaldeController::class, 'destroy']);
 Route::get('/partidos/{partidoId}/candidatos-alcalde', [CandidatoAlcaldeController::class, 'getByPartido']);
 Route::get('/movimientos/{movimientoId}/candidatos-alcalde', [CandidatoAlcaldeController::class, 'getByMovimiento']);
+Route::get('/municipios/{municipioId}/candidatos-alcalde', [CandidatoAlcaldeController::class, 'getByMunicipio']);
 
 # Partido routes
 Route::get('/partidos', [PartidoController::class, 'index']);

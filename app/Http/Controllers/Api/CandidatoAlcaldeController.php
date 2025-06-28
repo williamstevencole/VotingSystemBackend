@@ -94,4 +94,17 @@ class CandidatoAlcaldeController extends Controller
             ->get();
         return response()->json($candidatos);
     }
+
+    /**
+     * Get candidatos by municipio
+     */
+    public function getByMunicipio(string $municipioId): JsonResponse
+    {
+        $candidatos = CandidatoAlcalde::where('id_municipio', $municipioId)
+            ->with(['partido', 'movimiento', 'municipio'])
+            ->get();
+        return response()->json($candidatos);
+    }
+
+
 }
