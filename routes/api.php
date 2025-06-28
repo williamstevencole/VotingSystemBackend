@@ -86,6 +86,7 @@ Route::post('/personas', [PersonaController::class, 'store']);
 Route::get('/personas/{id_persona}', [PersonaController::class, 'show']);
 Route::put('/personas/{id_persona}', [PersonaController::class, 'update']);
 Route::delete('/personas/{id_persona}', [PersonaController::class, 'destroy']);
+Route::get('/personas/no-identidad/{no_identidad}', [PersonaController::class, 'getByNoIdentidad']);
 
 #Usuario routes
 Route::get('/usuarios', [UsuarioController::class, 'index']);

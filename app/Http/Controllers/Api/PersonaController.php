@@ -37,6 +37,18 @@ class PersonaController extends Controller
     }
 
     /**
+     * Get persona by no_identidad
+     */
+    public function getByNoIdentidad(string $no_identidad)
+    {
+        $persona = Persona::where('no_identidad', $no_identidad)->first();
+        if (!$persona) {
+            return response()->json(['error' => 'Persona no encontrada'], 404);
+        }
+        return response()->json($persona);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id_persona)
