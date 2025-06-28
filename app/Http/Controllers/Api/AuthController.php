@@ -21,38 +21,83 @@ class AuthController extends Controller
      //Si la request solo incluye numero de identidad, se debe verificar si la persona existe, si no existe, se debe de crear la persona y se manda el token con los datos de esa persona.
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'correo' => 'required_without:no_identidad',
-            'no_identidad' => 'required_without:correo',
-            'contrasena' => 'required_with:correo',
-        ]);
+        // Si se envía correo, validar que también venga contraseña
+        if ($request->has('correo')) {
+            $validator = Validator::make($request->all(), [
+                'correo' => 'required|email',
+                'contrasena' => 'required',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
 
-        if ($request->has('correo') && $request->has('contrasena')) {
+            // Verificar que el usuario existe
             $usuario = Usuario::where('correo', $request->correo)->first();
             if (!$usuario) {
                 return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
+
+            // Verificar que la contraseña es correcta
             if (!Hash::check($request->contrasena, $usuario->contrasena)) {
                 return response()->json(['error' => 'Contraseña incorrecta'], 401);
             }
+
             $token = $usuario->createToken('auth_token')->plainTextToken;
-            return response()->json(['token' => $token, 'id_usuario' => $usuario->id_usuario, 'correo' => $usuario->correo, 'id_persona' => $usuario->persona->id_persona, 'nombre' => $usuario->persona->nombre, 'no_identidad' => $usuario->persona->no_identidad], 200);
+            $usuario->load('persona.municipio.departamento');
+            
+            return response()->json([
+                'token' => $token, 
+                'id_usuario' => $usuario->id_usuario, 
+                'correo' => $usuario->correo, 
+                'id_persona' => $usuario->persona->id_persona, 
+                'nombre' => $usuario->persona->nombre, 
+                'no_identidad' => $usuario->persona->no_identidad, 
+                'municipio_id' => $usuario->persona->municipio->id_municipio, 
+                'departamento_id' => $usuario->persona->municipio->departamento->id_departamento
+            ], 200);
         }
 
+        // Si solo se envía número de identidad
         if ($request->has('no_identidad')) {
-            $persona = Persona::where('no_identidad', $request->no_identidad)->first();
-            if (!$persona) {
-                return response()->json(['error' => 'Persona no encontrada'], 404);
+            $validator = Validator::make($request->all(), [
+                'no_identidad' => 'required',
+                'nombre' => 'required',
+                'municipio_id' => 'required|exists:municipios,id_municipio',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
             }
+
+            $persona = Persona::where('no_identidad', $request->no_identidad)->first();
+            
+
+            if (!$persona) {
+                $persona = Persona::create([
+                    'no_identidad' => $request->no_identidad,
+                    'nombre' => $request->nombre,
+                    'id_municipio' => $request->municipio_id,
+                ]);
+            }
+
             $token = $persona->createToken('auth_token')->plainTextToken;
-            return response()->json(['token' => $token, 'id_persona' => $persona->id_persona, 'nombre' => $persona->nombre, 'no_identidad' => $persona->no_identidad], 200);
+            $persona->load('municipio.departamento');
+            
+            return response()->json([
+                'token' => $token, 
+                'id_persona' => $persona->id_persona, 
+                'nombre' => $persona->nombre, 
+                'no_identidad' => $persona->no_identidad, 
+                'municipio_id' => $persona->municipio->id_municipio, 
+                'departamento_id' => $persona->municipio->departamento->id_departamento, 
+                'municipio_nombre' => $persona->municipio->nombre, 
+                'departamento_nombre' => $persona->municipio->departamento->nombre
+            ], 200);
         }
 
-        return response()->json(['error' => 'No se proporcionó correo o contraseña'], 400);
+        // Si no se proporciona ni correo ni número de identidad
+        return response()->json(['error' => 'Se debe proporcionar correo o número de identidad'], 400);
     }
 
     /**
