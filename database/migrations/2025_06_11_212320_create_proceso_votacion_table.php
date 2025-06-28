@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id('id_proceso'); 
             $table->enum('etapa', ['Prevotacion','Votacion','Postvotacion'])
                   ->default('Prevotacion');
-            $table->foreignId('modificado_por')
-                  ->constrained('usuarios','id_usuario')
-                  ->onDelete('cascade');
+            $table->unsignedBigInteger('modificado_por')->nullable();
             $table->timestamps();
         });
     }

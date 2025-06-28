@@ -14,7 +14,8 @@ class DepartamentoController extends Controller
      */
     public function index()
     {
-        //
+        $departamentos = Departamento::all();
+        return response()->json($departamentos);
     }
 
     /**
@@ -22,7 +23,8 @@ class DepartamentoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $departamento = Departamento::create($request->all());
+        return response()->json($departamento, 201);
     }
 
     /**
@@ -30,7 +32,8 @@ class DepartamentoController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $departamento = Departamento::find($id);
+        return response()->json($departamento);
     }
 
     /**
@@ -38,7 +41,9 @@ class DepartamentoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $departamento = Departamento::find($id);
+        $departamento->update($request->all());
+        return response()->json($departamento);
     }
 
     /**
@@ -46,6 +51,8 @@ class DepartamentoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $departamento = Departamento::find($id);
+        $departamento->delete();
+        return response()->json(null, 204);
     }
 }

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\MovimientoController;
 use App\Http\Controllers\Api\EstadisticasController;
+use App\Http\Controllers\Api\ProcesoVotacionController;
 
 use App\Models\Usuario;
 
@@ -37,6 +38,28 @@ Route::get('/movimientos/{id}', [MovimientoController::class, 'show']);
 Route::put('/movimientos/{id}', [MovimientoController::class, 'update']);
 Route::delete('/movimientos/{id}', [MovimientoController::class, 'destroy']);
 Route::get('/partidos/{partidoId}/movimientos', [MovimientoController::class, 'getByPartido']);
+
+#Departamento routes
+Route::get('/departamentos', [DepartamentoController::class, 'index']);
+Route::post('/departamentos', [DepartamentoController::class, 'store']);
+Route::get('/departamentos/{id}', [DepartamentoController::class, 'show']);
+Route::put('/departamentos/{id}', [DepartamentoController::class, 'update']);
+Route::delete('/departamentos/{id}', [DepartamentoController::class, 'destroy']);
+
+#Municipio routes
+Route::get('/municipios', [MunicipioController::class, 'index']);
+Route::post('/municipios', [MunicipioController::class, 'store']);
+Route::get('/municipios/{id}', [MunicipioController::class, 'show']);
+Route::put('/municipios/{id}', [MunicipioController::class, 'update']);
+Route::delete('/municipios/{id}', [MunicipioController::class, 'destroy']);
+Route::get('/municipios/departamento/{departamentoId}', [MunicipioController::class, 'getByDepartamento']);
+
+#Proceso de votacion routes
+Route::get('/proceso-votacion', [ProcesoVotacionController::class, 'index']);
+Route::post('/proceso-votacion', [ProcesoVotacionController::class, 'store']);
+Route::get('/proceso-votacion/{id}', [ProcesoVotacionController::class, 'show']);
+Route::put('/proceso-votacion/{id}', [ProcesoVotacionController::class, 'update']);
+Route::delete('/proceso-votacion/{id}', [ProcesoVotacionController::class, 'destroy']);
 
 # Candidato Presidente routes
 Route::get('/candidatos-presidente', [CandidatoPresidenteController::class, 'index']);

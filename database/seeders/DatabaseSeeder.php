@@ -8,6 +8,7 @@ use App\Models\Partido;
 use App\Models\Movimiento;
 use App\Models\Departamento;
 use App\Models\Municipio;
+use App\Models\ProcesoVotacion;
 use App\Models\CandidatoPresidente;
 use App\Models\CandidatoDiputado;
 use App\Models\CandidatoAlcalde;
@@ -21,6 +22,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+    
 
         //CREAR PARTIDOS
         $partidos = [
@@ -119,6 +122,12 @@ class DatabaseSeeder extends Seeder
         foreach ($usuarios as $usuario) {
             Usuario::firstOrCreate(['correo' => $usuario['correo']], $usuario);
         }
+
+         //inciar proceso de votacion
+        $proceso = ProcesoVotacion::create([
+            'etapa' => 'Prevotacion',
+            'modificado_por' => 1,
+        ]);
 
         //CREAR CANDIDATOS PRESIDENTE
         $candidatosPresidente = [
