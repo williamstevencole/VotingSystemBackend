@@ -93,17 +93,20 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'William Cole', 'no_identidad' => '0000000000001', 'id_municipio' => 1],
             ['nombre' => 'Jorge Paz', 'no_identidad' => '0000000000002', 'id_municipio' => 1],
             ['nombre' => 'Fabrizio Ramos', 'no_identidad' => '0000000000003', 'id_municipio' => 1],
-            ['nombre' => 'Persona #1', 'no_identidad' => '0000000000004', 'id_municipio' => 1],
-            ['nombre' => 'Persona #2', 'no_identidad' => '0000000000005', 'id_municipio' => 1],
-            ['nombre' => 'Persona #3', 'no_identidad' => '0000000000006', 'id_municipio' => 1],
-            ['nombre' => 'Persona #4', 'no_identidad' => '0000000000007', 'id_municipio' => 1],
-            ['nombre' => 'Persona #5', 'no_identidad' => '0000000000008', 'id_municipio' => 1],
-            ['nombre' => 'Persona #6', 'no_identidad' => '0000000000009', 'id_municipio' => 1],
-            ['nombre' => 'Persona #7', 'no_identidad' => '0000000000010', 'id_municipio' => 1],
         ];
 
         foreach ($personas as $persona) {
             Persona::firstOrCreate(['no_identidad' => $persona['no_identidad']], $persona);
+        }
+
+        for($i = 4; $i <= 53; $i++){
+            $municipioId = (($i - 4) % 15) + 1; 
+            $personaAdicional = [
+                'nombre' => 'Persona #' . $i, 
+                'no_identidad' => '000000000000' . $i, 
+                'id_municipio' => $municipioId
+            ];
+            Persona::firstOrCreate(['no_identidad' => $personaAdicional['no_identidad']], $personaAdicional);
         }
 
         //CREAR USUARIOS

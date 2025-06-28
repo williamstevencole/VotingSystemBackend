@@ -34,7 +34,6 @@ class VotoAlcaldeController extends Controller
     {
         $voto = VotoAlcalde::find($id);
         if($voto){
-            $voto->update($request->all());
             return response()->json($voto);
         }else{
             return response()->json(['message' => 'Voto no encontrado'], 404);
