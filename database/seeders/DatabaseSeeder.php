@@ -129,6 +129,10 @@ class DatabaseSeeder extends Seeder
             'modificado_por' => 1,
         ]);
 
+        //actualizar proceso a votacion
+        $proceso->etapa = 'Votacion';
+        $proceso->save();
+
         //CREAR CANDIDATOS PRESIDENTE
         $candidatosPresidente = [
             ['id_partido' => 2, 'id_movimiento' => 5, 'nombre' => 'Salvador Alejandro Cesar Nasralla Salum', 'foto_url' => 'https://resultadosprimarias2025.cne.hn/assets/images/parties/CCC000003.10100000.792.png'],
