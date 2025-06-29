@@ -22,99 +22,105 @@ class AuthController extends Controller
      //Si la request solo incluye numero de identidad, se debe verificar si la persona existe, si no existe, se debe de crear la persona y se manda el token con los datos de esa persona.
     public function login(Request $request)
     {
-        // Obtener el proceso de votación activo
-        $procesoVotacion = ProcesoVotacion::where('etapa', 'activo')
-                                          ->orWhere('etapa', 'en_proceso')
-                                          ->orderBy('created_at', 'desc')
-                                          ->first();
-        
-        if (!$procesoVotacion) {
-            // Si no hay proceso activo, crear uno por defecto
-            $procesoVotacion = ProcesoVotacion::create([
-                'etapa' => 'activo',
-                'modificado_por' => 1 // Usuario por defecto
-            ]);
-        }
-
-        // Si se envía correo, validar que también venga contraseña
-        if ($request->has('correo')) {
-            $validator = Validator::make($request->all(), [
-                'correo' => 'required|email',
-                'contrasena' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-
-            // Verificar que el usuario existe
-            $usuario = Usuario::where('correo', $request->correo)->first();
-            if (!$usuario) {
-                return response()->json(['error' => 'Usuario no encontrado'], 404);
-            }
-
-            // Verificar que la contraseña es correcta
-            if (!Hash::check($request->contrasena, $usuario->contrasena)) {
-                return response()->json(['error' => 'Contraseña incorrecta'], 401);
-            }
-
-            $token = $usuario->createToken('auth_token')->plainTextToken;
-            $usuario->load('persona.municipio.departamento');
+        try {
+            // Obtener el proceso de votación activo
+            $procesoVotacion = ProcesoVotacion::where('etapa', 'Votacion')
+                                              ->orderBy('created_at', 'desc')
+                                              ->first();
             
-            return response()->json([
-                'token' => $token, 
-                'id_usuario' => $usuario->id_usuario, 
-                'correo' => $usuario->correo, 
-                'id_persona' => $usuario->persona->id_persona, 
-                'nombre' => $usuario->persona->nombre, 
-                'no_identidad' => $usuario->persona->no_identidad, 
-                'municipio_id' => $usuario->persona->municipio->id_municipio, 
-                'departamento_id' => $usuario->persona->municipio->departamento->id_departamento,
-                'proceso_id' => $procesoVotacion->id_proceso
-            ], 200);
-        }
-
-        // Si solo se envía número de identidad
-        if ($request->has('no_identidad')) {
-            $validator = Validator::make($request->all(), [
-                'no_identidad' => 'required',
-                'nombre' => 'required',
-                'municipio_id' => 'required|exists:municipios,id_municipio',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-
-            $persona = Persona::where('no_identidad', $request->no_identidad)->first();
-            
-
-            if (!$persona) {
-                $persona = Persona::create([
-                    'no_identidad' => $request->no_identidad,
-                    'nombre' => $request->nombre,
-                    'id_municipio' => $request->municipio_id,
+            if (!$procesoVotacion) {
+                // Si no hay proceso activo, crear uno por defecto
+                $procesoVotacion = ProcesoVotacion::create([
+                    'etapa' => 'Prevotacion',
+                    'modificado_por' => 1 // Usuario por defecto
                 ]);
             }
 
-            $token = $persona->createToken('auth_token')->plainTextToken;
-            $persona->load('municipio.departamento');
-            
-            return response()->json([
-                'token' => $token, 
-                'id_persona' => $persona->id_persona, 
-                'nombre' => $persona->nombre, 
-                'no_identidad' => $persona->no_identidad, 
-                'municipio_id' => $persona->municipio->id_municipio, 
-                'departamento_id' => $persona->municipio->departamento->id_departamento, 
-                'municipio_nombre' => $persona->municipio->nombre, 
-                'departamento_nombre' => $persona->municipio->departamento->nombre,
-                'proceso_id' => $procesoVotacion->id_proceso
-            ], 200);
-        }
+            // Si se envía correo, validar que también venga contraseña
+            if ($request->has('correo')) {
+                $validator = Validator::make($request->all(), [
+                    'correo' => 'required|email',
+                    'contrasena' => 'required',
+                ]);
 
-        // Si no se proporciona ni correo ni número de identidad
-        return response()->json(['error' => 'Se debe proporcionar correo o número de identidad'], 400);
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 422);
+                }
+
+                // Verificar que el usuario existe
+                $usuario = Usuario::where('correo', $request->correo)->first();
+                if (!$usuario) {
+                    return response()->json(['error' => 'Usuario no encontrado'], 404);
+                }
+
+                // Verificar que la contraseña es correcta
+                if (!Hash::check($request->contrasena, $usuario->contrasena)) {
+                    return response()->json(['error' => 'Contraseña incorrecta'], 401);
+                }
+
+                $token = $usuario->createToken('auth_token')->plainTextToken;
+                $usuario->load('persona.municipio.departamento');
+                
+                return response()->json([
+                    'token' => $token, 
+                    'id_usuario' => $usuario->id_usuario, 
+                    'correo' => $usuario->correo, 
+                    'id_persona' => $usuario->persona->id_persona, 
+                    'nombre' => $usuario->persona->nombre, 
+                    'no_identidad' => $usuario->persona->no_identidad, 
+                    'municipio_id' => $usuario->persona->municipio->id_municipio, 
+                    'departamento_id' => $usuario->persona->municipio->departamento->id_departamento,
+                    'proceso_id' => $procesoVotacion->id_proceso
+                ], 200);
+            }
+
+            // Si solo se envía número de identidad
+            if ($request->has('no_identidad')) {
+                $validator = Validator::make($request->all(), [
+                    'no_identidad' => 'required',
+                    'nombre' => 'required',
+                    'municipio_id' => 'required|exists:municipios,id_municipio',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 422);
+                }
+
+                $persona = Persona::where('no_identidad', $request->no_identidad)->first();
+                
+
+                if (!$persona) {
+                    $persona = Persona::create([
+                        'no_identidad' => $request->no_identidad,
+                        'nombre' => $request->nombre,
+                        'id_municipio' => $request->municipio_id,
+                    ]);
+                }
+
+                $token = $persona->createToken('auth_token')->plainTextToken;
+                $persona->load('municipio.departamento');
+                
+                return response()->json([
+                    'token' => $token, 
+                    'id_persona' => $persona->id_persona, 
+                    'nombre' => $persona->nombre, 
+                    'no_identidad' => $persona->no_identidad, 
+                    'municipio_id' => $persona->municipio->id_municipio, 
+                    'departamento_id' => $persona->municipio->departamento->id_departamento, 
+                    'municipio_nombre' => $persona->municipio->nombre, 
+                    'departamento_nombre' => $persona->municipio->departamento->nombre,
+                    'proceso_id' => $procesoVotacion->id_proceso
+                ], 200);
+            }
+
+            // Si no se proporciona ni correo ni número de identidad
+            return response()->json(['error' => 'Se debe proporcionar correo o número de identidad'], 400);
+
+        } catch (\Exception $e) {
+            \Log::error('Error en login: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -149,8 +155,7 @@ class AuthController extends Controller
             $usuario->load('persona.municipio.departamento');
 
             // Obtener el proceso de votación activo
-            $procesoVotacion = ProcesoVotacion::where('etapa', 'activo')
-                                              ->orWhere('etapa', 'en_proceso')
+            $procesoVotacion = ProcesoVotacion::where('etapa', 'Votacion')
                                               ->orderBy('created_at', 'desc')
                                               ->first();
 

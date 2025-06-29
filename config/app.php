@@ -124,6 +124,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Illuminate\Foundation\Providers\FoundationServiceProvider::class, 
+        Laravel\Sanctum\SanctumServiceProvider::class,
 
         /*
          * Application Service Providers...
