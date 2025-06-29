@@ -78,16 +78,16 @@ class PersonaController extends Controller
     /*
     * VErificar si la persona ya ha votado (aunque sea nulo)
     */
-    public function verificarVoto(string $id_persona)
+    public function verificarVoto(string $id_persona, string $id_proceso)
     {
         $persona = Persona::find($id_persona);
         if (!$persona) {
             return response()->json(['error' => 'Persona no encontrada'], 404);
         }
 
-        $votoPresidencial = VotoPresidencial::where('id_persona', $id_persona)->exists();
-        $votoDiputado = VotoDiputado::where('id_persona', $id_persona)->exists();
-        $votoAlcalde = VotoAlcalde::where('id_persona', $id_persona)->exists();
+        $votoPresidencial = VotoPresidencial::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
+        $votoDiputado = VotoDiputado::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
+        $votoAlcalde = VotoAlcalde::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
 
         $yaVoto = $votoPresidencial || $votoDiputado || $votoAlcalde;
 

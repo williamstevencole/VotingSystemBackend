@@ -111,7 +111,7 @@ Route::get('/personas/{id_persona}', [PersonaController::class, 'show']);
 Route::put('/personas/{id_persona}', [PersonaController::class, 'update']);
 Route::delete('/personas/{id_persona}', [PersonaController::class, 'destroy']);
 Route::get('/personas/no-identidad/{no_identidad}', [PersonaController::class, 'getByNoIdentidad']);
-Route::get('/personas/verificar-voto/{id_persona}', [PersonaController::class, 'verificarVoto']);
+Route::get('/personas/verificar-voto/{id_persona}/{id_proceso}', [PersonaController::class, 'verificarVoto']);
 
 #Usuario routes
 Route::get('/usuarios', [UsuarioController::class, 'index']);
