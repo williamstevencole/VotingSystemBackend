@@ -113,7 +113,6 @@ class AuthController extends Controller
                 ], 200);
             }
 
-            // Si no se proporciona ni correo ni número de identidad
             return response()->json(['error' => 'Se debe proporcionar correo o número de identidad'], 400);
 
         } catch (\Exception $e) {
