@@ -20,13 +20,12 @@ services:
             - db
         command: >
             sh -c "
-              echo 'Waiting for database...' &&
-              while ! nc -z db 5432; do
-                sleep 1
-              done &&
-              echo 'Database is ready!' &&
-              php artisan migrate:fresh --seed --force &&
-              php-fpm
+            echo 'Esperando base de datos...' &&
+            while ! nc -z db 5432; do sleep 1; done &&
+            echo 'Base de datos lista!' &&
+            composer install &&
+            php artisan migrate:fresh --seed --force &&
+            php-fpm
             "
         networks:
             - voting-network
