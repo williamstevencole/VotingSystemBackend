@@ -80,16 +80,34 @@ class PersonaController extends Controller
     */
     public function verificarVoto(string $id_persona, string $id_proceso)
     {
+        \Log::info("Verificando voto para persona: {$id_persona}, proceso: {$id_proceso}");
+        
         $persona = Persona::find($id_persona);
         if (!$persona) {
+            \Log::warning("Persona no encontrada: {$id_persona}");
             return response()->json(['error' => 'Persona no encontrada'], 404);
         }
 
-        $votoPresidencial = VotoPresidencial::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
-        $votoDiputado = VotoDiputado::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
-        $votoAlcalde = VotoAlcalde::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->exists();
+        \Log::info("Persona encontrada: {$persona->nombre}");
+
+        // Verificar votos presidenciales
+        $votosPresidenciales = VotoPresidencial::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->get();
+        $votoPresidencial = $votosPresidenciales->count() > 0;
+        \Log::info("Votos presidenciales encontrados: " . $votosPresidenciales->count());
+
+        // Verificar votos diputados
+        $votosDiputados = VotoDiputado::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->get();
+        $votoDiputado = $votosDiputados->count() > 0;
+        \Log::info("Votos diputados encontrados: " . $votosDiputados->count());
+
+        // Verificar votos alcaldes
+        $votosAlcaldes = VotoAlcalde::where('id_persona', $id_persona)->where('id_proceso', $id_proceso)->get();
+        $votoAlcalde = $votosAlcaldes->count() > 0;
+        \Log::info("Votos alcaldes encontrados: " . $votosAlcaldes->count());
 
         $yaVoto = $votoPresidencial || $votoDiputado || $votoAlcalde;
+
+        \Log::info("Resultado final: yaVoto={$yaVoto}");
 
         return response()->json([
             'voto' => $yaVoto,
