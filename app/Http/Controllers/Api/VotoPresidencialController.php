@@ -23,6 +23,8 @@ class VotoPresidencialController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('Voto presidencial recibido:', $request->all());
+        
         $request->validate([
             'id_persona' => 'required|exists:personas,id_persona',
             'id_candidato' => 'nullable|exists:candidato_presidentes,id_candidato',
@@ -31,6 +33,7 @@ class VotoPresidencialController extends Controller
         ]);
 
         $voto = VotoPresidencial::create($request->all());
+        \Log::info('Voto presidencial creado:', $voto->toArray());
         return response()->json($voto, 201);
     }
 

@@ -44,10 +44,14 @@ class PersonaController extends Controller
      */
     public function getByNoIdentidad(string $no_identidad)
     {
-        $persona = Persona::where('no_identidad', $no_identidad)->first();
+        $persona = Persona::with('municipio.departamento')->where('no_identidad', $no_identidad)->first();
         if (!$persona) {
             return response()->json(['error' => 'Persona no encontrada'], 404);
         }
+
+        $persona->departamento_id = $persona->municipio->departamento->id_departamento;
+        $persona->municipio_id = $persona->municipio->id_municipio;
+
         return response()->json($persona);
     }
 
