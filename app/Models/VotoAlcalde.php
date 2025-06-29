@@ -12,9 +12,10 @@ class VotoAlcalde extends Model
     protected $table = 'voto_alcalde';
     protected $primaryKey = 'id_voto';
     public $timestamps = false;
-    protected $fillable = ['id_persona', 'id_candidato', 'id_municipio', 'tiempo'];
+    protected $fillable = ['id_persona', 'id_candidato', 'id_municipio', 'id_proceso', 'tiempo'];
     protected $casts = [
         'id_candidato' => 'integer',
+        'id_proceso' => 'integer',
     ];
 
     public function persona()
@@ -30,5 +31,10 @@ class VotoAlcalde extends Model
     public function municipio()
     {
         return $this->belongsTo(Municipio::class, 'id_municipio', 'id_municipio');
+    }
+
+    public function procesoVotacion()
+    {
+        return $this->belongsTo(ProcesoVotacion::class, 'id_proceso', 'id_proceso');
     }
 }

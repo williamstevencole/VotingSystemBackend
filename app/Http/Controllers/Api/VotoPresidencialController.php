@@ -29,6 +29,7 @@ class VotoPresidencialController extends Controller
             'id_persona' => 'required|exists:personas,id_persona',
             'id_candidato' => 'nullable|exists:candidato_presidentes,id_candidato',
             'id_departamento' => 'required|exists:departamentos,id_departamento',
+            'id_proceso' => 'nullable|exists:proceso_votacion,id_proceso',
             'tiempo' => 'required|date',
         ]);
 

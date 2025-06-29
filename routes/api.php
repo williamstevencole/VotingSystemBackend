@@ -56,6 +56,7 @@ Route::get('/municipios/departamento/{departamentoId}', [MunicipioController::cl
 
 #Proceso de votacion routes
 Route::get('/proceso-votacion', [ProcesoVotacionController::class, 'index']);
+Route::get('/proceso-votacion/activo', [ProcesoVotacionController::class, 'getActive']);
 Route::post('/proceso-votacion', [ProcesoVotacionController::class, 'store']);
 Route::get('/proceso-votacion/{id}', [ProcesoVotacionController::class, 'show']);
 Route::put('/proceso-votacion/{id}', [ProcesoVotacionController::class, 'update']);
@@ -160,6 +161,8 @@ Route::prefix('estadisticas')->group(function () {
     Route::get('/participacion-departamentos', [EstadisticasController::class, 'participacionDepartamentos']);
     //participacion de alcaldes por municipio, participacion = votos alcaldes / votos alcaldes totales
     Route::get('/participacion-municipios', [EstadisticasController::class, 'participacionMunicipios']);
+    //obtener todos los procesos de votación disponibles
+    Route::get('/procesos', [EstadisticasController::class, 'getProcesos']);
 });
 
 # Protected routes

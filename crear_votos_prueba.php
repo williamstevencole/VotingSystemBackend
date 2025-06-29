@@ -42,7 +42,8 @@ function crearVotoPresidencial($personaId, $candidatoId, $tiempo) {
         'id_persona' => $personaId,
         'id_candidato' => $candidatoId,
         'id_departamento' => 1,
-        'tiempo' => $tiempo
+        'tiempo' => $tiempo,
+        'id_proceso' => 1
     ];
     
     $result = hacerPost("$baseUrl/votos-presidenciales", $data);
@@ -64,7 +65,8 @@ function crearVotoDiputado($personaId, $candidatoId, $tiempo) {
         'id_persona' => $personaId,
         'id_candidato' => $candidatoId,
         'id_departamento' => 1,
-        'tiempo' => $tiempo
+        'tiempo' => $tiempo,
+        'id_proceso' => 1
     ];
     
     $result = hacerPost("$baseUrl/votos-diputados", $data);
@@ -86,7 +88,8 @@ function crearVotoAlcalde($personaId, $candidatoId, $municipioId, $tiempo) {
         'id_persona' => $personaId,
         'id_candidato' => $candidatoId,
         'id_municipio' => $municipioId,
-        'tiempo' => $tiempo
+        'tiempo' => $tiempo,
+        'id_proceso' => 1
     ];
     
     $result = hacerPost("$baseUrl/votos-alcaldes", $data);

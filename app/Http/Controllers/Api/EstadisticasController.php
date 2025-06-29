@@ -16,20 +16,33 @@ use App\Models\Departamento;
 use App\Models\Municipio;
 use App\Models\Partido;
 use App\Models\Movimiento;
+use App\Models\ProcesoVotacion;
 
 class EstadisticasController extends Controller
 {
     /**
      * Obtener estadísticas generales del sistema
      */
-    public function generales()
+    public function generales(Request $request)
     {
-        $totalVotosPresidenciales = VotoPresidencial::count();
-        $totalVotosDiputados = VotoDiputado::count();
-        $totalVotosAlcaldes = VotoAlcalde::count();
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+        
+        $totalVotosPresidenciales = VotoPresidencial::where('id_proceso', $proceso->id_proceso)->count();
+        $totalVotosDiputados = VotoDiputado::where('id_proceso', $proceso->id_proceso)->count();
+        $totalVotosAlcaldes = VotoAlcalde::where('id_proceso', $proceso->id_proceso)->count();
         $totalVotos = $totalVotosPresidenciales + $totalVotosDiputados + $totalVotosAlcaldes;
 
         return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'totales' => [
                 'votos_presidenciales' => $totalVotosPresidenciales,
                 'votos_diputados' => $totalVotosDiputados,
@@ -45,15 +58,24 @@ class EstadisticasController extends Controller
      */
     public function presidenciales(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $porDepartamento = $request->get('por_departamento', false);
         $porPartido = $request->get('por_partido', false);
         $porMovimiento = $request->get('por_movimiento', false);
 
-        $totalVotos = VotoPresidencial::count();
+        $totalVotos = VotoPresidencial::where('id_proceso', $proceso->id_proceso)->count();
 
         // Estadísticas por candidato
         $estadisticasCandidatos = CandidatoPresidente::with(['partido', 'movimiento'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->get()
             ->map(function ($candidato) use ($totalVotos) {
                 $porcentaje = $totalVotos > 0 ? round(($candidato->votos_count / $totalVotos) * 100, 2) : 0;
@@ -71,6 +93,11 @@ class EstadisticasController extends Controller
             ->values();
 
         $resultado = [
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'total_votos' => $totalVotos,
             'candidatos' => $estadisticasCandidatos
         ];
@@ -78,6 +105,7 @@ class EstadisticasController extends Controller
         // Estadísticas por departamento
         if ($porDepartamento) {
             $estadisticasDepartamento = VotoPresidencial::with(['candidato', 'departamento'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_departamento', 'id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_departamento', 'id_candidato')
                 ->get()
@@ -97,6 +125,7 @@ class EstadisticasController extends Controller
         // Estadísticas por partido
         if ($porPartido) {
             $estadisticasPartido = VotoPresidencial::with(['candidato.partido'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -111,6 +140,7 @@ class EstadisticasController extends Controller
         // Estadísticas por movimiento
         if ($porMovimiento) {
             $estadisticasMovimiento = VotoPresidencial::with(['candidato.movimiento'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -130,15 +160,24 @@ class EstadisticasController extends Controller
      */
     public function diputados(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $porDepartamento = $request->get('por_departamento', false);
         $porPartido = $request->get('por_partido', false);
         $porMovimiento = $request->get('por_movimiento', false);
 
-        $totalVotos = VotoDiputado::count();
+        $totalVotos = VotoDiputado::where('id_proceso', $proceso->id_proceso)->count();
 
         // Estadísticas por candidato
         $estadisticasCandidatos = CandidatoDiputado::with(['partido', 'movimiento', 'departamento'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->get()
             ->map(function ($candidato) use ($totalVotos) {
                 $porcentaje = $totalVotos > 0 ? round(($candidato->votos_count / $totalVotos) * 100, 2) : 0;
@@ -157,6 +196,11 @@ class EstadisticasController extends Controller
             ->values();
 
         $resultado = [
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'total_votos' => $totalVotos,
             'candidatos' => $estadisticasCandidatos
         ];
@@ -164,6 +208,7 @@ class EstadisticasController extends Controller
         // Estadísticas por departamento
         if ($porDepartamento) {
             $estadisticasDepartamento = VotoDiputado::with(['candidato', 'departamento'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_departamento', 'id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_departamento', 'id_candidato')
                 ->get()
@@ -183,6 +228,7 @@ class EstadisticasController extends Controller
         // Estadísticas por partido
         if ($porPartido) {
             $estadisticasPartido = VotoDiputado::with(['candidato.partido'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -197,6 +243,7 @@ class EstadisticasController extends Controller
         // Estadísticas por movimiento
         if ($porMovimiento) {
             $estadisticasMovimiento = VotoDiputado::with(['candidato.movimiento'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -216,15 +263,24 @@ class EstadisticasController extends Controller
      */
     public function alcaldes(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $porMunicipio = $request->get('por_municipio', false);
         $porPartido = $request->get('por_partido', false);
         $porMovimiento = $request->get('por_movimiento', false);
 
-        $totalVotos = VotoAlcalde::count();
+        $totalVotos = VotoAlcalde::where('id_proceso', $proceso->id_proceso)->count();
 
         // Estadísticas por candidato
         $estadisticasCandidatos = CandidatoAlcalde::with(['partido', 'movimiento', 'municipio'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->get()
             ->map(function ($candidato) use ($totalVotos) {
                 $porcentaje = $totalVotos > 0 ? round(($candidato->votos_count / $totalVotos) * 100, 2) : 0;
@@ -243,6 +299,11 @@ class EstadisticasController extends Controller
             ->values();
 
         $resultado = [
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'total_votos' => $totalVotos,
             'candidatos' => $estadisticasCandidatos
         ];
@@ -250,6 +311,7 @@ class EstadisticasController extends Controller
         // Estadísticas por municipio
         if ($porMunicipio) {
             $estadisticasMunicipio = VotoAlcalde::with(['candidato', 'municipio'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_municipio', 'id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_municipio', 'id_candidato')
                 ->get()
@@ -269,6 +331,7 @@ class EstadisticasController extends Controller
         // Estadísticas por partido
         if ($porPartido) {
             $estadisticasPartido = VotoAlcalde::with(['candidato.partido'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -283,6 +346,7 @@ class EstadisticasController extends Controller
         // Estadísticas por movimiento
         if ($porMovimiento) {
             $estadisticasMovimiento = VotoAlcalde::with(['candidato.movimiento'])
+                ->where('id_proceso', $proceso->id_proceso)
                 ->select('id_candidato', DB::raw('count(*) as total_votos'))
                 ->groupBy('id_candidato')
                 ->get()
@@ -300,10 +364,18 @@ class EstadisticasController extends Controller
     /**
      * Estadísticas comparativas entre partidos políticos
      */
-    public function comparativaPartidos()
+    public function comparativaPartidos(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         // Votos presidenciales por partido
         $votosPresidenciales = VotoPresidencial::with(['candidato.partido'])
+            ->where('id_proceso', $proceso->id_proceso)
             ->select('id_candidato', DB::raw('count(*) as total_votos'))
             ->groupBy('id_candidato')
             ->get()
@@ -314,6 +386,7 @@ class EstadisticasController extends Controller
 
         // Votos diputados por partido
         $votosDiputados = VotoDiputado::with(['candidato.partido'])
+            ->where('id_proceso', $proceso->id_proceso)
             ->select('id_candidato', DB::raw('count(*) as total_votos'))
             ->groupBy('id_candidato')
             ->get()
@@ -324,6 +397,7 @@ class EstadisticasController extends Controller
 
         // Votos alcaldes por partido
         $votosAlcaldes = VotoAlcalde::with(['candidato.partido'])
+            ->where('id_proceso', $proceso->id_proceso)
             ->select('id_candidato', DB::raw('count(*) as total_votos'))
             ->groupBy('id_candidato')
             ->get()
@@ -333,6 +407,11 @@ class EstadisticasController extends Controller
             });
 
         return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'presidenciales' => $votosPresidenciales,
             'diputados' => $votosDiputados,
             'alcaldes' => $votosAlcaldes,
@@ -347,11 +426,20 @@ class EstadisticasController extends Controller
     /**
      * Ranking de candidatos más votados
      */
-    public function rankingPresidentes()
+    public function rankingPresidentes(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         // Ranking presidentes
         $rankingPresidentes = CandidatoPresidente::with(['partido', 'movimiento'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->orderByDesc('votos_count')
             ->limit(10)
             ->get()
@@ -366,6 +454,11 @@ class EstadisticasController extends Controller
             });
 
         return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'presidentes' => $rankingPresidentes,
         ]);
     }
@@ -373,10 +466,19 @@ class EstadisticasController extends Controller
     /**
      * Ranking de candidatos más votados
      */
-    public function rankingDiputados()
+    public function rankingDiputados(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $rankingDiputados = CandidatoDiputado::with(['partido', 'movimiento', 'departamento'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->orderByDesc('votos_count')
             ->limit(10)
             ->get()
@@ -391,6 +493,11 @@ class EstadisticasController extends Controller
             });
 
         return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'diputados' => $rankingDiputados,
         ]);
     }
@@ -398,10 +505,19 @@ class EstadisticasController extends Controller
     /**
      * Ranking de candidatos más votados
      */
-    public function rankingAlcaldes()
+    public function rankingAlcaldes(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $rankingAlcaldes = CandidatoAlcalde::with(['partido', 'movimiento', 'municipio'])
-            ->withCount('votos')
+            ->withCount(['votos' => function($query) use ($proceso) {
+                $query->where('id_proceso', $proceso->id_proceso);
+            }])
             ->orderByDesc('votos_count')
             ->get()
             ->map(function ($candidato) {
@@ -415,6 +531,11 @@ class EstadisticasController extends Controller
             });
 
         return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
             'alcaldes' => $rankingAlcaldes,
         ]);
     }
@@ -422,13 +543,24 @@ class EstadisticasController extends Controller
     /**
      * Estadísticas de participación por departamento
      */
-    public function participacionDepartamentos()
+    public function participacionDepartamentos(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $departamentos = Departamento::with(['municipios'])
             ->get()
-            ->map(function ($departamento) {
-                $votosPresidenciales = VotoPresidencial::where('id_departamento', $departamento->id_departamento)->count();
-                $votosDiputados = VotoDiputado::where('id_departamento', $departamento->id_departamento)->count();
+            ->map(function ($departamento) use ($proceso) {
+                $votosPresidenciales = VotoPresidencial::where('id_departamento', $departamento->id_departamento)
+                    ->where('id_proceso', $proceso->id_proceso)
+                    ->count();
+                $votosDiputados = VotoDiputado::where('id_departamento', $departamento->id_departamento)
+                    ->where('id_proceso', $proceso->id_proceso)
+                    ->count();
                 
                 return [
                     'id_departamento' => $departamento->id_departamento,
@@ -440,18 +572,34 @@ class EstadisticasController extends Controller
             })
             ->sortByDesc('total_votos');
 
-        return response()->json($departamentos);
+        return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
+            'departamentos' => $departamentos
+        ]);
     }   
 
     /**
      * Estadísticas de participación por municipio
      */
-    public function participacionMunicipios()
+    public function participacionMunicipios(Request $request)
     {
+        $proceso_id = $request->get('proceso_id', 1);
+        $proceso = ProcesoVotacion::find($proceso_id);
+        
+        if (!$proceso) {
+            return response()->json(['error' => 'Proceso de votación no encontrado'], 404);
+        }
+
         $municipios = Municipio::with(['departamento'])
             ->get()
-            ->map(function ($municipio) {
-                $votosAlcaldes = VotoAlcalde::where('id_municipio', $municipio->id_municipio)->count();
+            ->map(function ($municipio) use ($proceso) {
+                $votosAlcaldes = VotoAlcalde::where('id_municipio', $municipio->id_municipio)
+                    ->where('id_proceso', $proceso->id_proceso)
+                    ->count();
                 
                 return [
                     'id_municipio' => $municipio->id_municipio,
@@ -462,6 +610,32 @@ class EstadisticasController extends Controller
             })
             ->sortByDesc('votos_alcaldes');
 
-        return response()->json($municipios);
+        return response()->json([
+            'proceso' => [
+                'id_proceso' => $proceso->id_proceso,
+                'etapa' => $proceso->etapa,
+                'created_at' => $proceso->created_at
+            ],
+            'municipios' => $municipios
+        ]);
+    }
+
+    /**
+     * Obtener todos los procesos de votación disponibles
+     */
+    public function getProcesos()
+    {
+        $procesos = ProcesoVotacion::orderBy('created_at', 'desc')->get();
+        
+        return response()->json([
+            'procesos' => $procesos->map(function ($proceso) {
+                return [
+                    'id_proceso' => $proceso->id_proceso,
+                    'etapa' => $proceso->etapa,
+                    'created_at' => $proceso->created_at,
+                    'updated_at' => $proceso->updated_at
+                ];
+            })
+        ]);
     }
 } 

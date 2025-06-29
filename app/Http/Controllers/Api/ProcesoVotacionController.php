@@ -18,6 +18,27 @@ class ProcesoVotacionController extends Controller
     }
 
     /**
+     * Get the active voting process.
+     */
+    public function getActive()
+    {
+        $proceso = ProcesoVotacion::where('etapa', 'activo')
+                                  ->orWhere('etapa', 'en_proceso')
+                                  ->orderBy('created_at', 'desc')
+                                  ->first();
+        
+        if (!$proceso) {
+            // Si no hay proceso activo, crear uno por defecto
+            $proceso = ProcesoVotacion::create([
+                'etapa' => 'activo',
+                'modificado_por' => 1 // Usuario por defecto
+            ]);
+        }
+        
+        return response()->json($proceso);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)

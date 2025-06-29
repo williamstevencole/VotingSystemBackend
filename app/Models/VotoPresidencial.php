@@ -12,9 +12,10 @@ class VotoPresidencial extends Model
     protected $table = 'voto_presidencial';
     protected $primaryKey = 'id_voto';
     public $timestamps = false;
-    protected $fillable = ['id_persona', 'id_candidato', 'id_departamento', 'tiempo'];
+    protected $fillable = ['id_persona', 'id_candidato', 'id_departamento', 'id_proceso', 'tiempo'];
     protected $casts = [
         'id_candidato' => 'integer',
+        'id_proceso' => 'integer',
     ];
 
     public function persona()
@@ -30,5 +31,10 @@ class VotoPresidencial extends Model
     public function departamento()
     {
         return $this->belongsTo(Departamento::class, 'id_departamento', 'id_departamento');
+    }
+
+    public function procesoVotacion()
+    {
+        return $this->belongsTo(ProcesoVotacion::class, 'id_proceso', 'id_proceso');
     }
 }

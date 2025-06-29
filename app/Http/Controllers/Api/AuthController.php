@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
 use App\Models\Persona;
+use App\Models\ProcesoVotacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -21,6 +22,20 @@ class AuthController extends Controller
      //Si la request solo incluye numero de identidad, se debe verificar si la persona existe, si no existe, se debe de crear la persona y se manda el token con los datos de esa persona.
     public function login(Request $request)
     {
+        // Obtener el proceso de votación activo
+        $procesoVotacion = ProcesoVotacion::where('etapa', 'activo')
+                                          ->orWhere('etapa', 'en_proceso')
+                                          ->orderBy('created_at', 'desc')
+                                          ->first();
+        
+        if (!$procesoVotacion) {
+            // Si no hay proceso activo, crear uno por defecto
+            $procesoVotacion = ProcesoVotacion::create([
+                'etapa' => 'activo',
+                'modificado_por' => 1 // Usuario por defecto
+            ]);
+        }
+
         // Si se envía correo, validar que también venga contraseña
         if ($request->has('correo')) {
             $validator = Validator::make($request->all(), [
@@ -54,7 +69,8 @@ class AuthController extends Controller
                 'nombre' => $usuario->persona->nombre, 
                 'no_identidad' => $usuario->persona->no_identidad, 
                 'municipio_id' => $usuario->persona->municipio->id_municipio, 
-                'departamento_id' => $usuario->persona->municipio->departamento->id_departamento
+                'departamento_id' => $usuario->persona->municipio->departamento->id_departamento,
+                'proceso_id' => $procesoVotacion->id_proceso
             ], 200);
         }
 
@@ -92,7 +108,8 @@ class AuthController extends Controller
                 'municipio_id' => $persona->municipio->id_municipio, 
                 'departamento_id' => $persona->municipio->departamento->id_departamento, 
                 'municipio_nombre' => $persona->municipio->nombre, 
-                'departamento_nombre' => $persona->municipio->departamento->nombre
+                'departamento_nombre' => $persona->municipio->departamento->nombre,
+                'proceso_id' => $procesoVotacion->id_proceso
             ], 200);
         }
 
@@ -131,6 +148,12 @@ class AuthController extends Controller
             $usuario = $request->user();
             $usuario->load('persona.municipio.departamento');
 
+            // Obtener el proceso de votación activo
+            $procesoVotacion = ProcesoVotacion::where('etapa', 'activo')
+                                              ->orWhere('etapa', 'en_proceso')
+                                              ->orderBy('created_at', 'desc')
+                                              ->first();
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -148,7 +171,8 @@ class AuthController extends Controller
                                 'nombre' => $usuario->persona->municipio->departamento->nombre,
                             ]
                         ]
-                    ]
+                    ],
+                    'proceso_id' => $procesoVotacion ? $procesoVotacion->id_proceso : null
                 ]
             ], 200);
 

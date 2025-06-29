@@ -27,6 +27,7 @@ class VotoAlcaldeController extends Controller
             'id_persona' => 'required|exists:personas,id_persona',
             'id_candidato' => 'nullable|exists:candidato_alcaldes,id_candidato',
             'id_municipio' => 'required|exists:municipios,id_municipio',
+            'id_proceso' => 'nullable|exists:proceso_votacion,id_proceso',
             'tiempo' => 'required|date',
         ]);
 
