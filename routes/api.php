@@ -52,7 +52,7 @@ Route::post('/municipios', [MunicipioController::class, 'store']);
 Route::get('/municipios/{id}', [MunicipioController::class, 'show']);
 Route::put('/municipios/{id}', [MunicipioController::class, 'update']);
 Route::delete('/municipios/{id}', [MunicipioController::class, 'destroy']);
-Route::get('/municipios/departamento/{departamentoId}', [MunicipioController::class, 'getByDepartamento']); #obtener municipios por departamento
+Route::get('/municipios/departamento/{departamentoId}', [MunicipioController::class, 'getByDepartamento']);
 
 #Proceso de votacion routes
 Route::get('/proceso-votacion', [ProcesoVotacionController::class, 'index']);
