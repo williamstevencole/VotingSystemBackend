@@ -10,7 +10,7 @@ use App\Models\VotoAlcalde;
 class VotoAlcaldeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the of alcalde votes.
      */
     public function index()
     {
