@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
             ['id_partido' => 3, 'nombre' => 'Somos +'], //id_movimiento = 13
             ['id_partido' => 3, 'nombre' => 'Pueblo Organizado En Resistencia (POR)'], //id_movimiento = 14
             ['id_partido' => 3, 'nombre' => 'Nueva Corriente'], //id_movimiento = 15
+            //asda
         ];
 
         foreach ($movimientos as $movimiento) {
